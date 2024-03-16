@@ -1,62 +1,82 @@
-'use client';
-import React, { useState } from 'react';
-import { quiz } from '../data.js';
+"use client";
+import React, { useState } from "react";
+import { quiz } from "../data.js";
 
-const page = () => {
+const Page = () => {
   const [activeQuestion, setActiveQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState('');
-  const [checked, setChecked] = useState(false);
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState({
-    score: 0,
-    correctAnswers: 0,
-    wrongAnswers: 0,
+    aspiration: 0,
+    financialFitness: 0,
+    energyManagement: 0,
+    precision: 0,
+    leadership: 0,
+    connection: 0,
+    selfExpertise: 0,
   });
 
   const { questions } = quiz;
   const { question, answers, correctAnswer } = questions[activeQuestion];
 
-  //   Select and check answer
+  // Select answer and update score
   const onAnswerSelected = (answer, idx) => {
-    setChecked(true);
     setSelectedAnswerIndex(idx);
-    if (answer === correctAnswer) {
-      setSelectedAnswer(true);
-      console.log('true');
-    } else {
-      setSelectedAnswer(false);
-      console.log('false');
+    const property = getPropertyForQuestion(activeQuestion);
+    const scoreIncrement = calculateScoreIncrement(answer, correctAnswer);
+    setResult((prev) => ({
+      ...prev,
+      [property]: prev[property] + scoreIncrement,
+    }));
+  };
+
+  // Calculate score increment based on answer correctness
+  const calculateScoreIncrement = (selectedAnswer, correctAnswer) => {
+    return selectedAnswer === correctAnswer ? 1 : 0;
+  };
+
+  // Determine which property the current question corresponds to
+  const getPropertyForQuestion = (questionIndex) => {
+    switch (questionIndex) {
+      case 0:
+      case 1:
+        return "aspiration";
+      case 2:
+      case 3:
+        return "financialFitness";
+      case 4:
+      case 5:
+        return "energyManagement";
+      case 6:
+      case 7:
+        return "precision";
+      case 8:
+      case 9:
+        return "leadership";
+      case 10:
+      case 11:
+        return "connection";
+      case 12:
+      case 13:
+        return "selfExpertise";
+      default:
+        return "";
     }
   };
 
-  // Calculate score and increment to next question
+  // Proceed to the next question or show result
   const nextQuestion = () => {
-    setSelectedAnswerIndex(null);
-    setResult((prev) =>
-      selectedAnswer
-        ? {
-            ...prev,
-            score: prev.score + 5,
-            correctAnswers: prev.correctAnswers + 1,
-          }
-        : {
-            ...prev,
-            wrongAnswers: prev.wrongAnswers + 1,
-          }
-    );
-    if (activeQuestion !== questions.length - 1) {
-      setActiveQuestion((prev) => prev + 1);
+    if (activeQuestion < questions.length - 1) {
+      setActiveQuestion(activeQuestion + 1);
     } else {
-      setActiveQuestion(0);
       setShowResult(true);
     }
-    setChecked(false);
+    setSelectedAnswerIndex(null);
   };
 
   return (
-    <div className='container'>
-      <h1>Quiz Page</h1>
+    <div className="container">
+      <h1>Mental Strength Test</h1>
       <div>
         <h2>
           Question: {activeQuestion + 1}
@@ -65,46 +85,33 @@ const page = () => {
       </div>
       <div>
         {!showResult ? (
-          <div className='quiz-container'>
-            <h3>{questions[activeQuestion].question}</h3>
+          <div className="quiz-container">
+            <h3>{question}</h3>
             {answers.map((answer, idx) => (
               <li
                 key={idx}
                 onClick={() => onAnswerSelected(answer, idx)}
                 className={
-                  selectedAnswerIndex === idx ? 'li-selected' : 'li-hover'
+                  selectedAnswerIndex === idx ? "li-selected" : "li-hover"
                 }
               >
                 <span>{answer}</span>
               </li>
             ))}
-            {checked ? (
-              <button onClick={nextQuestion} className='btn'>
-                {activeQuestion === question.length - 1 ? 'Finish' : 'Next'}
-              </button>
-            ) : (
-              <button onClick={nextQuestion} disabled className='btn-disabled'>
-                {' '}
-                {activeQuestion === question.length - 1 ? 'Finish' : 'Next'}
-              </button>
-            )}
+            <button onClick={nextQuestion} className="btn">
+              {activeQuestion === questions.length - 1 ? "Finish" : "Next"}
+            </button>
           </div>
         ) : (
-          <div className='quiz-container'>
+          <div className="quiz-container">
             <h3>Results</h3>
-            <h3>Overall {(result.score / 25) * 100}%</h3>
-            <p>
-              Total Questions: <span>{questions.length}</span>
-            </p>
-            <p>
-              Total Score: <span>{result.score}</span>
-            </p>
-            <p>
-              Correct Answers: <span>{result.correctAnswers}</span>
-            </p>
-            <p>
-              Wrong Answers: <span>{result.wrongAnswers}</span>
-            </p>
+            <p>Aspiration: {result.aspiration * 25}%</p>
+            <p>Financial Fitness: {result.financialFitness * 25}%</p>
+            <p>Energy Management: {result.energyManagement * 25}%</p>
+            <p>Precision: {result.precision * 25}%</p>
+            <p>Leadership: {result.leadership * 25}%</p>
+            <p>Connection: {result.connection * 25}%</p>
+            <p>Self Expertise: {result.selfExpertise * 25}%</p>
             <button onClick={() => window.location.reload()}>Restart</button>
           </div>
         )}
@@ -113,4 +120,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
